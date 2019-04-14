@@ -1,0 +1,7 @@
+200 darbo dienos ilgis
+80 kliento tikimybe
+10 nauju sumustiniu daznis
+2 nauju sumustiniu kiekis
+40 sumustiniu galiojimo laikas
+1.5 sumustinio pardavimo kaina
+0.3 sumustinio gamybos kaina
