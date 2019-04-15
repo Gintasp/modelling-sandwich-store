@@ -4,7 +4,8 @@
 
 int main()
 {
-    sandwichStoreStack();
+//    sandwichStoreStack();
+    sandwichStoreQueue();
 
     return 0;
 }

@@ -1,5 +1,4 @@
 #ifndef QUEUE_H_INCLUDED
-#define QUEUE_H_INCLUDED
 
 #include "p_queue.h"
 
@@ -18,9 +17,9 @@ int getFront(node *head, int *error);   //gaunami pirmo elemento duomenys (neisi
 
 void delete(queue *q, int *error); //eile sunaikinama
 
-int isfull(int *error);  //1 - tiesa, 0 - netiesa
+int isFull(int *error);  //1 - tiesa, 0 - netiesa
 
-int isempty(queue *q);   //1 - tiesa, 0 - netiesa
+int isEmpty(queue *q);   //1 - tiesa, 0 - netiesa
 
 /*
 Klaidu kodai:
@@ -31,5 +30,6 @@ Klaidu kodai:
 4 - bandoma istrinti tuscia eile
 5 - eile tuscia
 */
+#define QUEUE_H_INCLUDED
 
 #endif // QUEUE_H_INCLUDED

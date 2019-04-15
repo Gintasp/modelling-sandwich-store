@@ -35,7 +35,7 @@ queue *createNewQueue(int *error)
 
 }
 
-int isempty(queue *q)
+int isEmpty(queue *q)
 {
     if (q->front == NULL && q->rear == NULL)
         return 1;
@@ -101,7 +101,7 @@ int getFront(node *head, int *error)
     } else *error = 5;
 }
 
-int isfull(int *error)
+int isFull(int *error)
 {
     if (error == 2)
         return 1;

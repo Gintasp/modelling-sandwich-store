@@ -1,8 +1,9 @@
 #include "../data_structures/queue/queue.h"
 #include <stdlib.h>
-#include "../random.h"
 #include <stdio.h>
 #include <time.h>
+#include "store_queue.h"
+#include "../random.h"
 
 int sandwichStoreQueue()
 {
@@ -10,12 +11,15 @@ int sandwichStoreQueue()
     queue *holder1 = createNewQueue(error);
     queue *holder2 = createNewQueue(error);
     int counter = 0;
-    int expirationCounter = 0;
-    int s1Count = 0;
-    int s2Count = 0;
-    double profit = 0;
+    int q1Count = 0;
+    int q2Count = 0;
+    int *bin = NULL;
+    double revenue = 0;
     int random = 0;
     double production = 0;
+    FILE *fp = NULL;
+    int totalSandwichCount = 0;
+    double loses = 0;
 
     int WORKDAY_LENGTH = 0;
     int CLIENT_PROBABILITY = 0;
@@ -24,7 +28,6 @@ int sandwichStoreQueue()
     int SANDWICH_EXPIRATION_TIME = 0;
     float SANDWICH_SELL_PRICE = 0;
     float SANDWICH_MANUFACTURE_PRICE = 0;
-    FILE *fp = NULL;
 
     fp = fopen("params.txt", "r");
 
@@ -48,103 +51,130 @@ int sandwichStoreQueue()
         //HANDLE NEW SANDWICHES
         if (counter % NEW_SANDWICH_TIME == 0)
         {
-            if (s1Count <= s2Count)
+            if (q1Count <= q2Count)
             {
                 for (int i = 0; i < NEW_SANDWICH_AMOUNT; i++)
                 {
                     printf("New sandwich added to Holder1!\n");
                     enqueue(holder1, 1, error);
-                    s1Count++;
+                    q1Count++;
+                    totalSandwichCount++;
                 }
             } else
             {
                 for (int i = 0; i < NEW_SANDWICH_AMOUNT; i++)
                 {
                     printf("New sandwich added to Holder2!\n");
-                    enqueue(holder2, 1, error);
-                    s2Count++;
+                    enqueue(holder1, 1, error);
+                    q2Count++;
+                    totalSandwichCount++;
                 }
             }
 
             production += SANDWICH_MANUFACTURE_PRICE * NEW_SANDWICH_AMOUNT;
-            expirationCounter++;
-        } else
-        {
-            expirationCounter++;
         }
 
         //HANDLE BUYER
-        if (random >= CLIENT_PROBABILITY && (s1Count > 0 || s2Count > 0))
+        if (random >= CLIENT_PROBABILITY && (q1Count > 0 || q2Count > 0))
         {
             printf("A client comes in...\n");
-            if (random >= 50)
+            if (random >= 50 && q1Count > 0)
             {
                 printf("Client buys sandwich from Holder1\n");
                 dequeue(holder1, error);
-                s1Count--;
-                profit += SANDWICH_SELL_PRICE;
-                printf("Total profit: %.2f\n", profit);
+                q1Count--;
+                totalSandwichCount--;
+                revenue += SANDWICH_SELL_PRICE;
+                printf("Total profit: %.2f\n", revenue);
             } else
             {
                 printf("Client buys sandwich from Holder2\n");
                 dequeue(holder2, error);
-                s2Count--;
-                profit += SANDWICH_SELL_PRICE;
-                printf("Total profit: %.2f\n", profit);
+                q2Count--;
+                totalSandwichCount--;
+                revenue += SANDWICH_SELL_PRICE;
+                printf("Total profit: %.2f\n", revenue);
             }
         } else
         {
             printf("Waiting for clients...\n");
         }
 
-        //HANDLE HOLDER 1 EXPIRED SANDWICHES
-        if (s1Count > (SANDWICH_EXPIRATION_TIME / NEW_SANDWICH_TIME) * NEW_SANDWICH_AMOUNT)
+        //HANDLE EXPIRED SANDWICHES
+        if (totalSandwichCount > (SANDWICH_EXPIRATION_TIME / NEW_SANDWICH_TIME) * NEW_SANDWICH_AMOUNT)
         {
-            int expCount1 = s1Count - ((SANDWICH_EXPIRATION_TIME / NEW_SANDWICH_TIME) * NEW_SANDWICH_AMOUNT);
-            printf("Holder1 has %d expired sandwiches.\n", expCount1);
-            for (int i = 0; i < expCount1; i++)
+            int expired = totalSandwichCount - ((SANDWICH_EXPIRATION_TIME / NEW_SANDWICH_TIME) * NEW_SANDWICH_AMOUNT);
+
+            if (q1Count >= q2Count)
             {
-                printf("Removing expired sandwich from holder1...\n");
-                dequeue(holder1, error);
-                s1Count--;
-                printf("Done!\n");
-                printf("after removing has: %d\n", s1Count);
+                for (int i = 0; i < expired; i++)
+                {
+                    printf("Removing expired sandwich from holder1\n");
+                    dequeue(holder1, error);
+                    loses += SANDWICH_MANUFACTURE_PRICE;
+                    q1Count--;
+                    totalSandwichCount--;
+                }
+            } else
+            {
+                for (int i = 0; i < expired; i++)
+                {
+                    printf("Removing expired sandwich from holder2\n");
+                    dequeue(holder2, error);
+                    loses += SANDWICH_MANUFACTURE_PRICE;
+                    q2Count--;
+                    totalSandwichCount--;
+                }
             }
         }
 
-        //HANDLE HOLDER 2 EXPIRED SANDWICHES
-        if (s2Count > (SANDWICH_EXPIRATION_TIME / NEW_SANDWICH_TIME) * NEW_SANDWICH_AMOUNT)
-        {
-            int expCount2 = s2Count - ((SANDWICH_EXPIRATION_TIME / NEW_SANDWICH_TIME) * NEW_SANDWICH_AMOUNT);
-
-            printf("Holder2 has %d expired sandwiches.\n", expCount2);
-            for (int i = 0; i < expCount2; i++)
-            {
-                printf("Removing expired sandwich from holder2...\n");
-                dequeue(holder2, error);
-                s2Count--;
-                printf("Done!\n");
-                printf("after removing has: %d\n", s1Count);
-            }
-        }
-
-        //DISPLAY DAY'S TOTALS
+        //AT THE END OF THE DAY
         if (counter == WORKDAY_LENGTH)
         {
+            //REMOVE LEFTOVERS
+            if (q1Count > 0)
+            {
+                for (int i = 0; i < q1Count; i++)
+                {
+                    printf("Removing expired sandwich at the end of the day from holder1\n");
+                    dequeue(holder1, error);
+                    q1Count--;
+                    totalSandwichCount--;
+                    loses += SANDWICH_MANUFACTURE_PRICE;
+                }
+            }
+
+            if (q2Count > 0)
+            {
+                for (int i = 0; i < q2Count; i++)
+                {
+                    printf("Removing expired sandwich at the end of the day from holder2\n");
+                    dequeue(holder2, error);
+                    q2Count--;
+                    totalSandwichCount--;
+                    loses += SANDWICH_MANUFACTURE_PRICE;
+                }
+            }
+
+            //DISPLAY DAY'S RESULTS
             printf("Store is closing.\nToday's costs: %.2f\n", production);
-            printf("Today's revenue: %.2f\n", profit);
-            printf("Today's profit: %.2f\n", profit - production);
+            printf("Today's revenue: %.2f\n", revenue);
+            printf("Today's loses: %.2f\n", loses);
+            printf("---------------\n");
+            printf("Today's profit: %.2f\n", revenue - production - loses);
             break;
         }
     }
 
     //WRITE RESULTS TO FILE
     FILE *file = NULL;
-    file = fopen("store_queue.txt", "w+");
-    fputs("Results using queue: ", file);
-    fprintf(file, "Today's revenue: %.2f\n", profit);
+    fputs("Results using stack: ", file);
+    file = fopen("results_stack.txt", "w+");
+    fprintf(file, "Today's revenue: %.2f\n", revenue);
     fprintf(file, "Today's costs: %.2f\n", production);
-    fprintf(file, "Today's profit: %.2f\n", profit - production);
+    fprintf(file, "Today's loses: %.2f\n", loses);
+    fprintf(file, "---------------------\n");
+    fprintf(file, "Today's profit: %.2f\n", revenue - production - loses);
     fclose(file);
 
     return 0;
