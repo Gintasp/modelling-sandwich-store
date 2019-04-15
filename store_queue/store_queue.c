@@ -51,7 +51,7 @@ int sandwichStoreQueue()
         random = getRandom(1, 100);
 
         //HANDLE NEW SANDWICHES
-        if (counter % NEW_SANDWICH_TIME == 0)
+        if (counter % NEW_SANDWICH_TIME == 0 && counter < WORKDAY_LENGTH - SANDWICH_EXPIRATION_TIME)
         {
             if (q1Count <= q2Count)
             {
