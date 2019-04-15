@@ -168,8 +168,8 @@ int sandwichStoreQueue()
 
     //WRITE RESULTS TO FILE
     FILE *file = NULL;
-    fputs("Results using stack: ", file);
-    file = fopen("results_stack.txt", "w+");
+    fputs("Results using queue: ", file);
+    file = fopen("results_queue.txt", "w+");
     fprintf(file, "Today's revenue: %.2f\n", revenue);
     fprintf(file, "Today's costs: %.2f\n", production);
     fprintf(file, "Today's loses: %.2f\n", loses);

@@ -62,20 +62,24 @@ int enqueue(queue *q, int value, int *error)
         q->rear->next = tmp;
         q->rear = tmp;
         q->count++;
-        *error = 0;
-    } else *error = 2;
+    }
 }
 
 int dequeue(queue *q, int *error)
 {
     if (q->count == 0)
-        *error = 3;
+    {
+        error = 3;
+        return 3;
+    }
+
     node *tmp;
     int n = q->front->data;
     tmp = q->front;
     q->front = q->front->next;
     q->count--;
     free(tmp);
+
     return (n);
 }
 
