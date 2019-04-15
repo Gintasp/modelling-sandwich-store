@@ -4,21 +4,6 @@
 #include "queue.h"
 //@1811167
 
-struct node
-{
-    int data;
-    struct node *next;
-};
-typedef struct node node;
-
-struct queue
-{
-    int count;
-    node *front;
-    node *rear;
-};
-typedef struct queue queue;
-
 queue *createNewQueue(int *error)
 {
     queue *q = malloc(sizeof(queue));

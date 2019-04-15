@@ -1,9 +1,19 @@
 #ifndef QUEUE_H_INCLUDED
 
-#include "p_queue.h"
+struct node
+{
+    int data;
+    struct node *next;
+};
+typedef struct node node;
 
-struct node;
-struct queue;
+struct queue
+{
+    int count;
+    node *front;
+    node *rear;
+};
+typedef struct queue queue;
 
 queue *createNewQueue(int *error);  //sukuriama tuscia eile
 

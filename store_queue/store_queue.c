@@ -10,6 +10,8 @@ int sandwichStoreQueue()
     int *error = NULL;
     queue *holder1 = createNewQueue(error);
     queue *holder2 = createNewQueue(error);
+    queue *times1 = createNewQueue(error);
+    queue *times2 = createNewQueue(error);
     int counter = 0;
     int q1Count = 0;
     int q2Count = 0;
@@ -59,6 +61,7 @@ int sandwichStoreQueue()
                     enqueue(holder1, 1, error);
                     q1Count++;
                     totalSandwichCount++;
+                    enqueue(times1, counter, error);
                 }
             } else
             {
@@ -68,6 +71,7 @@ int sandwichStoreQueue()
                     enqueue(holder1, 1, error);
                     q2Count++;
                     totalSandwichCount++;
+                    enqueue(times2, counter, error);
                 }
             }
 
@@ -85,14 +89,16 @@ int sandwichStoreQueue()
                 q1Count--;
                 totalSandwichCount--;
                 revenue += SANDWICH_SELL_PRICE;
+                dequeue(times1, error);
                 printf("Total profit: %.2f\n", revenue);
-            } else
+            } else if (q2Count > 0)
             {
                 printf("Client buys sandwich from Holder2\n");
                 dequeue(holder2, error);
                 q2Count--;
                 totalSandwichCount--;
                 revenue += SANDWICH_SELL_PRICE;
+                dequeue(times2, error);
                 printf("Total profit: %.2f\n", revenue);
             }
         } else
@@ -101,32 +107,56 @@ int sandwichStoreQueue()
         }
 
         //HANDLE EXPIRED SANDWICHES
-        if (totalSandwichCount > (SANDWICH_EXPIRATION_TIME / NEW_SANDWICH_TIME) * NEW_SANDWICH_AMOUNT)
-        {
-            int expired = totalSandwichCount - ((SANDWICH_EXPIRATION_TIME / NEW_SANDWICH_TIME) * NEW_SANDWICH_AMOUNT);
+        int expired1 = 0;
+        int expired2 = 0;
 
-            if (q1Count >= q2Count)
+        node *start1 = times1->rear;
+        while (times1->rear != NULL)
+        {
+            int elapsed = counter - times1->rear->data;
+            times1->rear = times1->rear->next;
+            if (elapsed > SANDWICH_EXPIRATION_TIME)
             {
-                for (int i = 0; i < expired; i++)
-                {
-                    printf("Removing expired sandwich from holder1\n");
-                    dequeue(holder1, error);
-                    loses += SANDWICH_MANUFACTURE_PRICE;
-                    q1Count--;
-                    totalSandwichCount--;
-                }
-            } else
-            {
-                for (int i = 0; i < expired; i++)
-                {
-                    printf("Removing expired sandwich from holder2\n");
-                    dequeue(holder2, error);
-                    loses += SANDWICH_MANUFACTURE_PRICE;
-                    q2Count--;
-                    totalSandwichCount--;
-                }
+                expired1++;
             }
         }
+        times1->rear = start1;
+
+        node *start2 = times2->rear;
+        while (times2->rear != NULL)
+        {
+            int elapsed = counter - times2->rear->data;
+            times2->rear = times2->rear->next;
+            if (elapsed > SANDWICH_EXPIRATION_TIME)
+            {
+                expired2++;
+            }
+        }
+        times2->rear = start2;
+
+        for (int j = expired1; j > 0; j--)
+        {
+            printf("Removing expired sandwich from holder1\n");
+            dequeue(holder1, error);
+            dequeue(times1, error);
+            loses += SANDWICH_MANUFACTURE_PRICE;
+            q1Count--;
+            totalSandwichCount--;
+        }
+
+        expired1 = 0;
+
+        for (int j = expired2; j > 0; j--)
+        {
+            printf("Removing expired sandwich from holder2\n");
+            dequeue(holder2, error);
+            dequeue(times2, error);
+            loses += SANDWICH_MANUFACTURE_PRICE;
+            q2Count--;
+            totalSandwichCount--;
+        }
+
+        expired2 = 0;
 
         //AT THE END OF THE DAY
         if (counter == WORKDAY_LENGTH)
