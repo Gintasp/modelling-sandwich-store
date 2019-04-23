@@ -5,7 +5,7 @@
 #include "store_stack.h"
 #include "../random.h"
 
-int sandwichStoreStack()
+int sandwichStoreStack(int seed)
 {
     Stekas *holder1 = createStack();
     Stekas *holder2 = createStack();
@@ -40,7 +40,7 @@ int sandwichStoreStack()
 
     fclose(fp);
 
-    srand(time(0));
+    srand(seed);
 
     while (counter <= WORKDAY_LENGTH)
     {

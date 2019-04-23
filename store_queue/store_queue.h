@@ -1,6 +1,6 @@
 #ifndef DARBAS_3_STORE_QUEUE_H
 
-int sandwichStoreQueue();
+int sandwichStoreQueue(int seed);
 
 #define DARBAS_3_STORE_QUEUE_H
 

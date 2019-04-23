@@ -5,7 +5,7 @@
 #include "store_queue.h"
 #include "../random.h"
 
-int sandwichStoreQueue()
+int sandwichStoreQueue(int seed)
 {
     int *error = NULL;
     queue *holder1 = createNewQueue(error);
@@ -43,7 +43,7 @@ int sandwichStoreQueue()
 
     fclose(fp);
 
-    srand(time(0));
+    srand(seed);
 
     while (counter <= WORKDAY_LENGTH)
     {
